@@ -24,6 +24,7 @@ void setup() {
 
 void loop() {
     if (Serial.available()) {
+        delay(10);
         int nbytes = min(sizeof buffer, Serial.available());
         Serial.readBytes(buffer, nbytes);
 
@@ -33,6 +34,7 @@ void loop() {
     }
 
     if (radio.available()) {
+        delay(10);
         radio.read(buffer, 32);
 
         Serial.write(buffer, 32);
