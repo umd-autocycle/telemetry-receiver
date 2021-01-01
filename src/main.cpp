@@ -12,6 +12,8 @@ uint8_t readAddr[] = "DNODE";
 uint8_t writeAddr[] = "UNODE";
 byte buffer[32];
 
+uint8_t checksum(const uint8_t *buf, int len);
+
 void setup() {
     Serial.begin(115200);
 
@@ -25,8 +27,22 @@ void setup() {
 void loop() {
     if (Serial.available()) {
         delay(10);
-        int nbytes = min(sizeof buffer, Serial.available());
-        Serial.readBytes(buffer, nbytes);
+        int nbytes = 0;
+        uint8_t command = Serial.read();
+
+        buffer[0] = command;
+        switch (command) {
+            case 's':
+            case 'd':
+                nbytes = 6;
+                *((float*) &(buffer[2])) = Serial.parseFloat();
+                break;
+            case 'c':
+                nbytes = 3;
+                buffer[2] = Serial.parseInt();
+                break;
+        }
+        buffer[1] = nbytes;
 
         radio.stopListening();
         radio.write(buffer, nbytes);
@@ -37,7 +53,24 @@ void loop() {
         delay(10);
         radio.read(buffer, 32);
 
-        Serial.write(buffer, 32);
+        if (checksum(buffer, 30) == buffer[30]) {
+            for (int i = 2; i < 30; i += 4) {
+                Serial.print(*((float *) (&buffer[i])));
+                Serial.print("\t");
+            }
+
+            if (buffer[0] == 15)
+                Serial.println();
+        }
     }
 
+}
+
+uint8_t checksum(const uint8_t *buf, int len) {
+    unsigned int acc = 0;
+
+    for (int i = 0; i < len; i++)
+        acc += buf[i];
+
+    return acc % 256;
 }
