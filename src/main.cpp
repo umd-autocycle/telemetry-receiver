@@ -20,12 +20,13 @@ void setup() {
     radio.begin();
     radio.openWritingPipe(writeAddr);
     radio.openReadingPipe(1, readAddr);
-    radio.setPALevel(RF24_PA_MIN);
+    radio.setPALevel(RF24_PA_HIGH);
     radio.startListening();
 }
 
 void loop() {
     if (Serial.available()) {
+        Serial.print("Sending: ");
         delay(10);
         int nbytes = 0;
         uint8_t command = Serial.read();
@@ -43,14 +44,20 @@ void loop() {
                 break;
         }
         buffer[1] = nbytes;
+        buffer[31] = 0;
+        Serial.println((char *)buffer);
 
         radio.stopListening();
-        radio.write(buffer, nbytes);
+        if(radio.write(buffer, 32)) {
+            Serial.print("Sent: ");
+            Serial.println((char *)buffer);
+        }
         radio.startListening();
     }
 
     if (radio.available()) {
-        delay(10);
+        delay(100);
+        Serial.println("Got stuff!");
         radio.read(buffer, 32);
 
         if (checksum(buffer, 30) == buffer[30]) {
