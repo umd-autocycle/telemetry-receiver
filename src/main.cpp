@@ -22,11 +22,13 @@ void setup() {
     radio.openReadingPipe(1, readAddr);
     radio.setPALevel(RF24_PA_HIGH);
     radio.startListening();
+
+    while (Serial.available()) Serial.read();
 }
 
 void loop() {
     if (Serial.available()) {
-        Serial.print("Sending: ");
+        Serial.println("Sending.");
         delay(10);
         int nbytes = 0;
         uint8_t command = Serial.read();
@@ -42,6 +44,13 @@ void loop() {
                 nbytes = 3;
                 buffer[2] = Serial.parseInt();
                 break;
+            case 't':
+                nbytes = 10;
+                *((float*) &(buffer[2])) = Serial.parseFloat();
+                *((uint32_t *) &(buffer[6])) = Serial.parseInt();
+                break;
+            default:
+                break;
         }
         buffer[1] = nbytes;
         buffer[31] = 0;
@@ -49,8 +58,7 @@ void loop() {
 
         radio.stopListening();
         if(radio.write(buffer, 32)) {
-            Serial.print("Sent: ");
-            Serial.println((char *)buffer);
+            Serial.println("Sent.");
         }
         radio.startListening();
     }
@@ -60,13 +68,15 @@ void loop() {
         radio.read(buffer, 32);
 
         if (checksum(buffer, 30) == buffer[30]) {
+            if (buffer[0] == 13)
+                Serial.println();
+
             for (int i = 2; i < 30; i += 4) {
                 Serial.print(*((float *) (&buffer[i])));
                 Serial.print("\t");
             }
 
-            if (buffer[0] == 13)
-                Serial.println();
+
         }
     }
 
