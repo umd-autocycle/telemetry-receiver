@@ -57,7 +57,6 @@ void loop() {
 
     if (radio.available()) {
         delay(100);
-        Serial.println("Got stuff!");
         radio.read(buffer, 32);
 
         if (checksum(buffer, 30) == buffer[30]) {
@@ -66,7 +65,7 @@ void loop() {
                 Serial.print("\t");
             }
 
-            if (buffer[0] == 15)
+            if (buffer[0] == 13)
                 Serial.println();
         }
     }
