@@ -51,6 +51,10 @@ void loop() {
                 break;
             default:
                 break;
+            case 'r':
+            case 'q':
+                nbytes = 2;
+                break;
         }
         buffer[1] = nbytes;
         buffer[31] = 0;
