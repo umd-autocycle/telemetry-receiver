@@ -41,8 +41,8 @@ void loop() {
                 *((float*) &(buffer[2])) = Serial.parseFloat();
                 break;
             case 'c':
-                nbytes = 3;
-                buffer[2] = Serial.parseInt();
+                nbytes = 4;
+                *((uint16_t *) &(buffer[2])) = Serial.parseInt();
                 break;
             case 't':
                 nbytes = 10;
