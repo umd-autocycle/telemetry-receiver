@@ -35,7 +35,7 @@ void loop() {
 
         buffer[0] = command;
         switch (command) {
-            case 's':
+            case 'v':
             case 'd':
                 nbytes = 6;
                 *((float*) &(buffer[2])) = Serial.parseFloat();
@@ -45,6 +45,7 @@ void loop() {
                 *((uint16_t *) &(buffer[2])) = Serial.parseInt();
                 break;
             case 't':
+            case 'q':
                 nbytes = 10;
                 *((float*) &(buffer[2])) = Serial.parseFloat();
                 *((uint32_t *) &(buffer[6])) = Serial.parseInt();
@@ -53,7 +54,7 @@ void loop() {
                 break;
             case 'h':
             case 'r':
-            case 'q':
+            case 's':
                 nbytes = 2;
                 break;
         }
