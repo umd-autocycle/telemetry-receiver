@@ -37,8 +37,9 @@ void loop() {
         switch (command) {
             case 'v':
             case 'd':
+            case 'h':
                 nbytes = 6;
-                *((float*) &(buffer[2])) = Serial.parseFloat();
+                *((float *) &(buffer[2])) = Serial.parseFloat();
                 break;
             case 'c':
                 nbytes = 4;
@@ -47,12 +48,11 @@ void loop() {
             case 't':
             case 'q':
                 nbytes = 10;
-                *((float*) &(buffer[2])) = Serial.parseFloat();
+                *((float *) &(buffer[2])) = Serial.parseFloat();
                 *((uint32_t *) &(buffer[6])) = Serial.parseInt();
                 break;
             default:
                 break;
-            case 'h':
             case 'r':
             case 's':
                 nbytes = 2;
@@ -60,10 +60,10 @@ void loop() {
         }
         buffer[1] = nbytes;
         buffer[31] = 0;
-        Serial.println((char *)buffer);
+        Serial.println((char *) buffer);
 
         radio.stopListening();
-        if(radio.write(buffer, 32)) {
+        if (radio.write(buffer, 32)) {
             Serial.println("Sent.");
         }
         radio.startListening();
