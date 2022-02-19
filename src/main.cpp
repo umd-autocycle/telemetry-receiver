@@ -24,6 +24,7 @@ void setup() {
     while (Serial.available()) Serial.read();
 
     radio.begin();
+    radio.setPALevel(RF24_PA_MAX);
     radio.setAutoAck(false);
     radio.startListening();
     radio.stopListening();
@@ -62,7 +63,6 @@ void setup() {
     radio.setAutoAck(true);
     radio.openWritingPipe(writeAddr);
     radio.openReadingPipe(1, readAddr);
-    radio.setPALevel(RF24_PA_HIGH);
     radio.startListening();
 }
 
