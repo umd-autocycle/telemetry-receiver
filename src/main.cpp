@@ -7,6 +7,10 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 
+#define N_CHANNELS  64
+#define R           100
+int num_interference[N_CHANNELS];
+
 RF24 radio(7, 8);
 uint8_t readAddr[] = "DNODE";
 uint8_t writeAddr[] = "UNODE";
@@ -16,14 +20,49 @@ uint8_t checksum(const uint8_t *buf, int len);
 
 void setup() {
     Serial.begin(115200);
+    while (!Serial);
+    while (Serial.available()) Serial.read();
 
     radio.begin();
+    radio.setAutoAck(false);
+    radio.startListening();
+    radio.stopListening();
+
+    memset(num_interference, 0, sizeof num_interference);
+
+    for (int j = 0; j < R; j++) {
+        for (int i = 1; i <= N_CHANNELS; i++) {
+            radio.setChannel(i);
+
+            radio.startListening();
+            delayMicroseconds(128);
+            radio.stopListening();
+
+            if (radio.testCarrier())
+                num_interference[i - 1]++;
+        }
+    }
+
+    for (int i = 1; i <= N_CHANNELS; i++) {
+        Serial.print("Channel ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.print(num_interference[i - 1]);
+        Serial.print(" interferences");
+    }
+    Serial.println("Channel selection: ");
+
+    while (!Serial.available());
+    uint32_t channel = Serial.parseInt();
+    radio.setChannel(channel);
+    Serial.print("Connecting to channel ");
+    Serial.println(channel);
+
+    radio.setAutoAck(true);
     radio.openWritingPipe(writeAddr);
     radio.openReadingPipe(1, readAddr);
     radio.setPALevel(RF24_PA_HIGH);
     radio.startListening();
-
-    while (Serial.available()) Serial.read();
 }
 
 void loop() {
@@ -82,8 +121,6 @@ void loop() {
                     Serial.print(*((float *) (&buffer[i])));
                     Serial.print("\t");
                 }
-
-
             }
         }
     }
