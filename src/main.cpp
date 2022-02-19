@@ -69,20 +69,22 @@ void loop() {
         radio.startListening();
     }
 
-    if (radio.available()) {
-        delay(100);
-        radio.read(buffer, 32);
+    uint8_t pipenum;
+    if (radio.available(&pipenum)) {
+        if (pipenum == 1) {
+            radio.read(buffer, 32);
 
-        if (checksum(buffer, 30) == buffer[30]) {
-            if (buffer[0] == 13)
-                Serial.println();
+            if (checksum(buffer, 30) == buffer[30]) {
+                if (buffer[0] == 13)
+                    Serial.println();
 
-            for (int i = 2; i < 30; i += 4) {
-                Serial.print(*((float *) (&buffer[i])));
-                Serial.print("\t");
+                for (int i = 2; i < 30; i += 4) {
+                    Serial.print(*((float *) (&buffer[i])));
+                    Serial.print("\t");
+                }
+
+
             }
-
-
         }
     }
 
