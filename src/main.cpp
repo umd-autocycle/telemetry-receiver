@@ -48,7 +48,8 @@ void setup() {
         Serial.print(i);
         Serial.print(": ");
         Serial.print(num_interference[i - 1]);
-        Serial.print(" interferences");
+        Serial.println(" interferences");
+        delay(1);
     }
     Serial.println("Channel selection: ");
 
